@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "bmi.h"
+#include <string.h>
 
 
 // TODO: move to a separate BMI C/C++ project.
@@ -44,10 +45,12 @@ BMI_API void get_string_attribute(const char& name, char& value)
 
 BMI_API void get_n_variables(int& count) // non-BMI
 {
+	count = 1;
 } 
 
-BMI_API void get_variable_name(const int index, char& variable) // non-BMI
+BMI_API void get_variable_name(const int index, char* variable) // non-BMI
 {
+	strcpy(variable, "test");
 } 
 
 BMI_API void get_var_shape(const char& variable, int* shape)

@@ -13,16 +13,18 @@ namespace BasicModelInterface
     public class BasicModelInterfaceLibrary : IBasicModelInterface
     {
         public const int MAXDIMS = 6;
-        
+
         public const int MAXSTRLEN = 1024;
 
         private string originalCurrentDirectory;
-        
+
         private dynamic lib;
+        
+        private string[] variableNames;
 
         public BasicModelInterfaceLibrary(string libraryPath, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
-            lib = new DynamicDllImport(libraryPath, CharSet.Auto, callingConvention);
+            lib = new DynamicDllImport(libraryPath, CharSet.Ansi, callingConvention);
         }
 
         public DateTime StartTime
@@ -104,6 +106,19 @@ namespace BasicModelInterface
             Directory.SetCurrentDirectory(originalCurrentDirectory);
         }
 
+        public string[] VariableNames
+        {
+            get
+            {
+                if (variableNames == null)
+                {
+                    GetVariableNames();
+                }
+
+                return variableNames;
+            }
+        }
+
         public int[] GetIntValues1D(string variable)
         {
             int rank = 0;
@@ -134,7 +149,7 @@ namespace BasicModelInterface
             return null;
         }
 
-        public int[,] GetIntValues2D(string variable, out int[] shape)
+        public int[,] GetIntValues2D(string variable)
         {
             int rank = 0;
             lib.get_var_rank(variable, ref rank);
@@ -144,7 +159,7 @@ namespace BasicModelInterface
                 throw new NotImplementedException("Only variables with rank 1 are supported");
             }
 
-            shape = new int[lib.MAXDIMS];
+            var shape = new int[MAXDIMS];
             lib.get_var_shape(variable, shape);
 
             if (rank == 2)
@@ -158,6 +173,7 @@ namespace BasicModelInterface
                 var values = new int[length];
                 Marshal.Copy(valuesPointer, values, 0, length);
 
+                // TODO: optimize this, avoid double copy
                 var values2d = new int[shape[0], shape[1]];
                 for (var i = 0; i < shape[0]; i++)
                 {
@@ -206,6 +222,22 @@ namespace BasicModelInterface
         public void SetDoubleValue1DAtIndex(string variable, int index, double valueDouble)
         {
             lib.set_1d_double_at_index(variable, ref index, ref valueDouble);
+        }
+
+        private void GetVariableNames()
+        {
+            var count = 0;
+            lib.get_n_variables(ref count);
+
+            var strings = new string[count];
+            for (var i = 0; i < count; i++)
+            {
+                var variableNameBuffer = new StringBuilder(MAXSTRLEN);
+                lib.get_variable_name(ref i, variableNameBuffer);
+                strings[i] = variableNameBuffer.ToString();
+            }
+
+            variableNames = strings;
         }
     }
 }

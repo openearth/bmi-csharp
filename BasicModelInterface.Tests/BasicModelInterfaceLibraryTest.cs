@@ -27,5 +27,14 @@ namespace BasicModelInterface.Tests
             library.Initialize(configFilePath);
             library.Initialize(configFilePath);
         }
+
+        [Test]
+        public void GetVariableNames()
+        {
+            IBasicModelInterface library = new BasicModelInterfaceLibrary(libraryPath);
+
+            Assert.AreEqual(1, library.VariableNames.Length);
+            Assert.AreEqual("test", library.VariableNames[0]);
+        }
     }
 }

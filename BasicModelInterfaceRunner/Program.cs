@@ -10,12 +10,12 @@ namespace BasicModelInterfaceRunner
             string data = null;
             var help = false;
             string bmiLibrary = null;
-            string configPath = null;
+            string initializePath = null;
             
             var optionSet = new OptionSet()
               .Add("h|?|help", delegate(string v) { help = v != null; })
-              .Add("d|bmi_library=", delegate(string v) { bmiLibrary = v; })
-              .Add("c|config_path=", delegate(string v) { configPath = v; });
+              .Add("l|bmi-library=", delegate(string v) { bmiLibrary = v; })
+              .Add("i|initialize-path=", delegate(string v) { initializePath = v; });
 
             try
             {
@@ -27,13 +27,13 @@ namespace BasicModelInterfaceRunner
                 return;
             }
 
-            if (help || bmiLibrary == null || configPath == null)
+            if (help || bmiLibrary == null || initializePath == null)
             {
                 optionSet.WriteOptionDescriptions(Console.Out);
                 return;
             }
 
-            RunModel(bmiLibrary, configPath);
+            RunModel(bmiLibrary, initializePath);
         }
 
         private static void RunModel(string bmiLibrary, string configPath)

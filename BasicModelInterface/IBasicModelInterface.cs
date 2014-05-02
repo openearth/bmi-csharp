@@ -25,9 +25,11 @@ namespace BasicModelInterface
 
         void Finish();
 
+        string[] VariableNames { get; }
+
         int[] GetIntValues1D(string variable);
 
-        int[,] GetIntValues2D(string variable, out int[] shape);
+        int[,] GetIntValues2D(string variable);
 
         double[] GetDoubleValues1D(string variable);
 

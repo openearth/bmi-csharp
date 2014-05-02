@@ -34,7 +34,7 @@ extern "C" {
 
 	BMI_API void get_n_variables(int& count); // non-BMI
 
-	BMI_API void get_variable_name(const int index, char& variable); // non-BMI
+	BMI_API void get_variable_name(const int index, char* variable); // non-BMI
 
 	BMI_API void get_var_shape(const char& variable, int* shape);
 
