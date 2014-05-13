@@ -1,0 +1,1 @@
+..\target\bmi-runner.exe ..\src\SampleNativeLibraries\SampleCppLibrary\bin\Debug\SampleCppLibrary.dll empty.cfg

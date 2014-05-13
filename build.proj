@@ -3,7 +3,7 @@
     <Framework>$(WINDIR)\Microsoft.NET\Framework\v4.0.30319</Framework>
     <BuildPath>$(MSBuildProjectDirectory)</BuildPath>
     <SolutionDir>$(MSBuildProjectDirectory)</SolutionDir> 
-    <ProjectsToBuild>BasicModelInterface\BasicModelInterface.csproj;BasicModelInterfaceRunner\BasicModelInterfaceRunner.csproj</ProjectsToBuild>
+    <ProjectsToBuild>src\BasicModelInterface\BasicModelInterface.csproj;src\BasicModelInterfaceRunner\BasicModelInterfaceRunner.csproj</ProjectsToBuild>
     <NuGetCmd>$(BuildPath)\tools\NuGet</NuGetCmd>
     <ProgramVersion>1.0.0.3</ProgramVersion>
   </PropertyGroup>
@@ -19,7 +19,7 @@
 
   <Target Name="Pack" DependsOnTargets="Merge">
     <MakeDir Directories="$(BuildPath)\target"/>
-    <Exec Command="$(NuGetCmd) pack $(BuildPath)\BasicModelInterface\BasicModelInterface.nuspec -Version $(ProgramVersion)" WorkingDirectory="$(BuildPath)\target\" />
+    <Exec Command="$(NuGetCmd) pack $(BuildPath)\src\BasicModelInterface\BasicModelInterface.nuspec -Version $(ProgramVersion)" WorkingDirectory="$(BuildPath)\target\" />
     <Exec Command="$(NuGetCmd) push $(BuildPath)\target\BasicModelInterface.$(ProgramVersion).nupkg -Source Local" />
   </Target>
 

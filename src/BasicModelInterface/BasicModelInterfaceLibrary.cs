@@ -22,6 +22,27 @@ namespace BasicModelInterface
         
         private string[] variableNames;
 
+        /// <summary>
+        /// Run model in one step from start to end.
+        /// </summary>
+        /// <param name="library"></param>
+        /// <param name="configPath"></param>
+        public static void Run(string library, string configPath)
+        {
+            var model = new BasicModelInterfaceLibrary(library);
+
+            model.Initialize(configPath);
+
+            var t = model.StartTime;
+            while (t < model.StopTime)
+            {
+                t = model.CurrentTime;
+                model.Update(-1);
+            }
+
+            model.Finish();
+        }
+
         public BasicModelInterfaceLibrary(string libraryPath, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
             lib = new DynamicDllImport(libraryPath, CharSet.Ansi, callingConvention);
@@ -31,42 +52,33 @@ namespace BasicModelInterface
         {
             get
             {
-                var startTime = 0.0;
-
-                // FlexibleMeshModelDll.get_start_time(ref startTime);
-
-                var sb = new StringBuilder(MAXSTRLEN);
-                lib.get_string_attribute("refdat", sb);
-
-                var refDate = new DateTime();
-
-                try
-                {
-                    refDate = DateTime.ParseExact(sb.ToString(), "yyyyMMdd", CultureInfo.InvariantCulture);
-                }
-                catch (Exception e)
-                {
-                    return refDate;
-                }
-
-                return refDate.AddSeconds(startTime);
+                double t = 0.0;
+                lib.get_start_time(ref t);
+                return new DateTime().AddSeconds(t);
             }
         }
 
-        public DateTime StopTime { get; private set; }
+        public DateTime StopTime
+        {
+            get
+            {
+                var t = 0.0;
+                lib.get_end_time(ref t);
+                return new DateTime().AddSeconds(t);
+            }
+        }
 
         public DateTime CurrentTime
         {
             get
             {
-                double t = 0.0;
+                var t = 0.0;
                 lib.get_current_time(ref t);
-
-                return StartTime.AddSeconds(t);
+                return new DateTime().AddSeconds(t);
             }
         }
 
-        public TimeSpan TimeStep { get; set; }
+        public TimeSpan TimeStep { get; private set; }
 
         public void Initialize(string path)
         {
@@ -88,10 +100,9 @@ namespace BasicModelInterface
             lib.initialize(configFile);
         }
 
-        public void Update()
+        public void Update(double timeStep)
         {
-            double totalSeconds = TimeStep.TotalSeconds;
-            lib.update(ref totalSeconds);
+            lib.update(ref timeStep);
         }
 
         public void Finish()

@@ -172,3 +172,5 @@ UpgradeLog*.htm
 *.bim_*.settings
 target/BasicModelInterface.1.0.0.3.nupkg
 target/bmi_runner.exe
+src/SampleNativeLibraries/SampleCppLibrary/SampleCppLibrary.vcxproj.filters
+target/bmi-runner.exe

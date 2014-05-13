@@ -15,6 +15,6 @@
   </metadata>
   <files>
     <file src="bin\Debug\BasicModelInterface.dll " target="lib\net45\BasicModelInterface.dll" />
-    <file src="..\target\bmi_runner.exe " target="tools\net45\bmi_runner.exe" />
+    <file src="..\..\target\bmi-runner.exe " target="tools\net45\bmi-runner.exe" />
   </files>
 </package>

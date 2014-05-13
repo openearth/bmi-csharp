@@ -5,6 +5,8 @@ using BasicModelInterface.Reflection;
 
 namespace BasicModelInterface
 {
+    public delegate void Logger(ref int level, StringBuilder message);
+    
     /// <summary>
     /// This interface contains calls to external BMI library. 
     /// 
@@ -43,5 +45,7 @@ namespace BasicModelInterface
         void get_2d_int([In] string variable, [In, Out] ref IntPtr values);
 
         void set_1d_double_at_index(string variable, [In] ref int index, [In] ref double value);
+
+        void set_logger(ref Logger logger);
     }
 }

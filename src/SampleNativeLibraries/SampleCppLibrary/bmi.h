@@ -14,6 +14,8 @@
 extern "C" {
 #endif
 
+	typedef void(*logger_callback)(int*, char*);
+
 	// TODO: move to a separate BMI C/C++ project.
 
 	BMI_API void initialize(const char* config_file);
@@ -24,7 +26,7 @@ extern "C" {
 
 	BMI_API void get_start_time(double& t);
 
-	BMI_API void get_end_time(const double& t);
+	BMI_API void get_end_time(double& t);
 
 	BMI_API void get_current_time(double& t);
 
@@ -47,4 +49,6 @@ extern "C" {
 	BMI_API void get_2d_int(const char& variable, int*** values);
 
 	BMI_API void set_1d_double_at_index(const char& variable, const int& index, double& value);
+
+	BMI_API void set_logger(logger_callback logger);
 }

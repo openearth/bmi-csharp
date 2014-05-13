@@ -3,18 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicModelInterface", "BasicModelInterface\BasicModelInterface.csproj", "{B973019E-5674-4E23-9B1E-C4CA5EAC381B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicModelInterface", "src\BasicModelInterface\BasicModelInterface.csproj", "{B973019E-5674-4E23-9B1E-C4CA5EAC381B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D75DD765-22A6-45C5-A7BB-82FA781EA52E} = {D75DD765-22A6-45C5-A7BB-82FA781EA52E}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicModelInterface.Tests", "BasicModelInterface.Tests\BasicModelInterface.Tests.csproj", "{F1E48563-E22D-4EB1-BE86-EB3C37FCF0E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicModelInterface.Tests", "src\BasicModelInterface.Tests\BasicModelInterface.Tests.csproj", "{F1E48563-E22D-4EB1-BE86-EB3C37FCF0E1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleCppLibrary", "SampleNativeLibraries\SampleCppLibrary\SampleCppLibrary.vcxproj", "{D75DD765-22A6-45C5-A7BB-82FA781EA52E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleCppLibrary", "src\SampleNativeLibraries\SampleCppLibrary\SampleCppLibrary.vcxproj", "{D75DD765-22A6-45C5-A7BB-82FA781EA52E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SampleNativeLibraries", "SampleNativeLibraries", "{576462E5-8855-49AD-8898-EE0A162F4062}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicModelInterfaceRunner", "BasicModelInterfaceRunner\BasicModelInterfaceRunner.csproj", "{66272C15-6BF1-4A88-BFDE-4F7CB8773428}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicModelInterfaceRunner", "src\BasicModelInterfaceRunner\BasicModelInterfaceRunner.csproj", "{66272C15-6BF1-4A88-BFDE-4F7CB8773428}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

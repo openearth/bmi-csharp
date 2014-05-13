@@ -13,7 +13,7 @@ namespace BasicModelInterface
 
         DateTime CurrentTime { get; }
 
-        TimeSpan TimeStep { get; set; }
+        TimeSpan TimeStep { get; }
         
         /// <summary>
         /// Initializes model engine.
@@ -21,7 +21,7 @@ namespace BasicModelInterface
         /// <param name="path">Configuration file path of the model, connection string, or any other path used to initialize model.</param>
         void Initialize(string path);
 
-        void Update();
+        void Update(double dt);
 
         void Finish();
 
