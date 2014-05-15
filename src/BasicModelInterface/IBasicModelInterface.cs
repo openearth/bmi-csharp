@@ -26,13 +26,9 @@ namespace BasicModelInterface
         void Finish();
 
         string[] VariableNames { get; }
+        
+        IArray<T> GetValues<T>(string variable);
 
-        int[] GetIntValues1D(string variable);
-
-        int[,] GetIntValues2D(string variable);
-
-        double[] GetDoubleValues1D(string variable);
-
-        void SetDoubleValue1DAtIndex(string variable, int index, double value);
+        void SetValues<T>(string variable, IArray<T> values);
     }
 }

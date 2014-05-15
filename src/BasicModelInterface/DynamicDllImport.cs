@@ -6,14 +6,13 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
-using System.Threading;
 
-namespace BasicModelInterface.Reflection
+namespace BasicModelInterface
 {
     /// <summary>
     /// Original source: https://code.google.com/p/dynamicdllimport/
     /// </summary>
-    public class DynamicDllImport : DynamicObject
+    internal class DynamicDllImport : DynamicObject
     {
         public CallingConvention CallingConvention = CallingConvention.Cdecl;
         public CharSet CharSet = CharSet.Auto;

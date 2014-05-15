@@ -4,7 +4,7 @@ using System.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace BasicModelInterface.Reflection
+namespace BasicModelInterface
 {
     /// <summary>
     /// Original source: https://code.google.com/p/dynamicdllimport/

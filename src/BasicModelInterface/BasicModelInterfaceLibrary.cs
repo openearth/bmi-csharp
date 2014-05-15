@@ -3,7 +3,6 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using BasicModelInterface.Reflection;
 
 namespace BasicModelInterface
 {
@@ -130,6 +129,34 @@ namespace BasicModelInterface
             }
         }
 
+        public IArray<T> GetValues<T>(string variable)
+        {
+            // get values (pointer)
+            int values = 0;
+            lib.get_var_values(variable, ref values);
+
+            // get rank
+            int rank = 0;
+            lib.get_var_rank(variable, ref rank);
+
+            if (rank > 1)
+            {
+                throw new NotImplementedException("Only variables with rank 1 are supported");
+            }
+
+            // get shape
+            var shape = new int[MAXDIMS];
+            lib.get_var_shape(variable, shape);
+
+            //return new NativeArray<T>(values, rank, shape);
+            return null;
+        }
+
+        public void SetValues<T>(string variable, IArray<T> values)
+        {
+            throw new NotImplementedException();
+        }
+
         public int[] GetIntValues1D(string variable)
         {
             int rank = 0;
@@ -238,13 +265,13 @@ namespace BasicModelInterface
         private void GetVariableNames()
         {
             var count = 0;
-            lib.get_n_variables(ref count);
+            lib.get_var_count(ref count);
 
             var strings = new string[count];
             for (var i = 0; i < count; i++)
             {
                 var variableNameBuffer = new StringBuilder(MAXSTRLEN);
-                lib.get_variable_name(ref i, variableNameBuffer);
+                lib.get_var_name(ref i, variableNameBuffer);
                 strings[i] = variableNameBuffer.ToString();
             }
 

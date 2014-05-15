@@ -16,13 +16,19 @@ extern "C" {
 
 	typedef void(*logger_callback)(int*, char*);
 
-	// TODO: move to a separate BMI C/C++ project.
+	// control
 
-	BMI_API void initialize(const char* config_file);
+	BMI_API int initialize(const char* config_file);
 
-	BMI_API void update(const double& dt);
+	BMI_API int update(const double& dt);
 
-	BMI_API void finalize();
+	BMI_API int finalize();
+
+	// logging
+
+	BMI_API void set_logger(logger_callback logger);
+
+	// time
 
 	BMI_API void get_start_time(double& t);
 
@@ -32,23 +38,24 @@ extern "C" {
 
 	BMI_API void get_time_step(double& dt);
 
-	BMI_API void get_string_attribute(const char& name, char& value);
+	// variable
 
-	BMI_API void get_n_variables(int& count); // non-BMI
+	BMI_API void get_var_count(int& count);
 
-	BMI_API void get_variable_name(const int index, char* variable); // non-BMI
+	BMI_API void get_var_name(const int index, char* variable);
 
-	BMI_API void get_var_shape(const char& variable, int* shape);
+	BMI_API void get_var_shape(const char* variable, int* shape);
 
-	BMI_API void get_var_rank(const char& variable, int& rank);
+	BMI_API void get_var_rank(const char* variable, int& rank);
 
-	BMI_API void get_1d_double(const char& variable, double** values);
 
-	BMI_API void get_1d_int(const char& variable, int** values);
+	BMI_API void get_var_values(const char* name, void *values);
 
-	BMI_API void get_2d_int(const char& variable, int*** values);
+	BMI_API void set_var_values(const char* name, void *values);
 
-	BMI_API void set_1d_double_at_index(const char& variable, const int& index, double& value);
+	BMI_API void get_var_values2(void*& values);
 
-	BMI_API void set_logger(logger_callback logger);
+	BMI_API void get_var_values_slice(const char *name, int* start, int* stop, int* step, void *values);
+
+	BMI_API void set_var_values_slice(const char *name, int* start, int* stop, int* step, void *values);
 }

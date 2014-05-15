@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -40,9 +41,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicModelInterfaceLibrary.cs" />
+    <Compile Include="IArray.cs" />
+    <Compile Include="NativeArray.cs" />
     <Compile Include="INativeBasicModelInterface.cs" />
-    <Compile Include="Reflection\DynamicDllImport.cs" />
-    <Compile Include="Reflection\DynamicDllImportMetaObject.cs" />
+    <Compile Include="DynamicDllImport.cs" />
+    <Compile Include="DynamicDllImportMetaObject.cs" />
     <Compile Include="IBasicModelInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

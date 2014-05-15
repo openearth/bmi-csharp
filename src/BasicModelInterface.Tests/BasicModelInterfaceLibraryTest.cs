@@ -1,11 +1,13 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.Runtime.InteropServices;
+using NUnit.Framework;
 
 namespace BasicModelInterface.Tests
 {
     [TestFixture]
     public class BasicModelInterfaceLibraryTest
     {
-        private const string library  = @"..\..\..\..\SampleNativeLibraries\SampleCppLibrary\bin\Debug\SampleCppLibrary.dll";
+        private const string library  = @"..\..\..\SampleNativeLibraries\SampleCppLibrary\bin\Debug\SampleCppLibrary.dll";
 
         [Test]
         public void InitializeAndFinish()
@@ -51,5 +53,30 @@ namespace BasicModelInterface.Tests
         {
             BasicModelInterfaceLibrary.Run(library, "test.config");
         }
+
+        [Test]
+        public void GetValues()
+        {
+            IBasicModelInterface library = new BasicModelInterfaceLibrary(BasicModelInterfaceLibraryTest.library);
+
+            var ptr = IntPtr.Zero;
+            get_var_values2(ref ptr);
+
+            var v0 = GetArrayValue(ptr, 0);
+            var v1 = GetArrayValue(ptr, 1);
+
+            var values = library.GetValues<double>("v1");
+
+            Console.WriteLine(values[0]);
+            Console.WriteLine(values[1]);
+        }
+
+        private unsafe double GetArrayValue(IntPtr ptr, int index)
+        {
+            return *((double*) ptr + index);
+        }
+
+        [DllImport(library, CallingConvention = CallingConvention.Cdecl)]
+        static extern void get_var_values2(ref IntPtr values);
     }
 }
