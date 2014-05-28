@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Globalization;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -11,36 +12,16 @@ namespace BasicModelInterface
     /// </summary>
     public class BasicModelInterfaceLibrary : IBasicModelInterface
     {
-        public const int MAXDIMS = 6;
+        private const int MAXDIMS = 6;
 
-        public const int MAXSTRLEN = 1024;
+        private const int MAXSTRLEN = 1024;
 
+        private readonly dynamic lib;
         private string originalCurrentDirectory;
 
-        private dynamic lib;
-        
         private string[] variableNames;
-
-        /// <summary>
-        /// Run model in one step from start to end.
-        /// </summary>
-        /// <param name="library"></param>
-        /// <param name="configPath"></param>
-        public static void Run(string library, string configPath)
-        {
-            var model = new BasicModelInterfaceLibrary(library);
-
-            model.Initialize(configPath);
-
-            var t = model.StartTime;
-            while (t < model.StopTime)
-            {
-                t = model.CurrentTime;
-                model.Update(-1);
-            }
-
-            model.Finish();
-        }
+        
+        private Logger logger;
 
         public BasicModelInterfaceLibrary(string libraryPath, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
@@ -61,7 +42,7 @@ namespace BasicModelInterface
         {
             get
             {
-                var t = 0.0;
+                double t = 0.0;
                 lib.get_end_time(ref t);
                 return new DateTime().AddSeconds(t);
             }
@@ -71,7 +52,7 @@ namespace BasicModelInterface
         {
             get
             {
-                var t = 0.0;
+                double t = 0.0;
                 lib.get_current_time(ref t);
                 return new DateTime().AddSeconds(t);
             }
@@ -79,41 +60,57 @@ namespace BasicModelInterface
 
         public TimeSpan TimeStep { get; private set; }
 
+        public Logger Logger
+        {
+            get
+            {
+                return logger;
+            }
+            set
+            {
+                logger = value;
+
+                lib.set_logger(logger);
+            }
+        }
+
         public void Initialize(string path)
         {
             originalCurrentDirectory = Directory.GetCurrentDirectory();
 
-            var dir = Path.GetDirectoryName(path);
-            if (!string.IsNullOrEmpty(dir))
-            {
-                Directory.SetCurrentDirectory(dir);
-            }
+            var configFile = path;
 
-            var configFile = Path.GetFileName(path);
-
-            if (!string.IsNullOrEmpty(configFile))
+            if (!string.IsNullOrEmpty(path))
             {
+                configFile = Path.GetFileName(path);
+
                 configFile = configFile.PadRight(MAXSTRLEN, '\0'); // make FORTRAN friendly
+
+                var dir = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(dir))
+                {
+                    Directory.SetCurrentDirectory(dir);
+                }
             }
 
-            lib.initialize(configFile);
+            try
+            {
+                lib.initialize(configFile);
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(originalCurrentDirectory);
+            }
         }
 
         public void Update(double timeStep)
         {
-            lib.update(ref timeStep);
+            lib.update(timeStep);
         }
 
         public void Finish()
         {
             lib.finalize();
-
-            if (string.IsNullOrEmpty(originalCurrentDirectory))
-            {
-                return;
-            }
-
-            Directory.SetCurrentDirectory(originalCurrentDirectory);
         }
 
         public string[] VariableNames
@@ -129,153 +126,176 @@ namespace BasicModelInterface
             }
         }
 
-        public IArray<T> GetValues<T>(string variable)
+        public Array GetValues(string variable)
         {
+            Trace.Assert(!string.IsNullOrEmpty(variable));
+
             // get values (pointer)
-            int values = 0;
-            lib.get_var_values(variable, ref values);
+            IntPtr ptr = IntPtr.Zero;
+            lib.get_var(variable, ref ptr);
 
             // get rank
             int rank = 0;
             lib.get_var_rank(variable, ref rank);
 
-            if (rank > 1)
-            {
-                throw new NotImplementedException("Only variables with rank 1 are supported");
-            }
-
             // get shape
             var shape = new int[MAXDIMS];
             lib.get_var_shape(variable, shape);
+            shape = shape.Take(rank).ToArray();
 
-            //return new NativeArray<T>(values, rank, shape);
-            return null;
+            // get value type
+            var typeNameBuilder = new StringBuilder(MAXSTRLEN);
+            lib.get_var_type(variable, typeNameBuilder);
+            string typeName = typeNameBuilder.ToString();
+
+            // copy to 1D array
+            int totalLength = GetTotalLength(shape);
+            Array values1D = ToArray1D(ptr, typeName, totalLength);
+
+            if (rank == 1)
+            {
+                return values1D;
+            }
+
+            // convert to nD array (unfotrunately can't copy to nD array at once :()
+            Array values = Array.CreateInstance(ToType(typeName), shape);
+
+            var index = new int[rank];
+            int dim = rank - 1;
+            bool reset = false;
+            for (int i = 0; i < totalLength; i++)
+            {
+                // increment the lowest dimension
+                while (index[dim] == shape[dim])
+                {
+                    for (int j = dim; j < rank; j++)
+                    {
+                        index[j] = 0;
+                    }
+
+                    dim--;
+                    index[dim]++;
+                    reset = true;
+                }
+
+
+                // reset to the last dimension
+                if (reset)
+                {
+                    dim = rank - 1;
+                    reset = false;
+                }
+
+                values.SetValue(values1D.GetValue(i), index);
+
+                index[dim]++;
+            }
+
+            return values;
         }
 
-        public void SetValues<T>(string variable, IArray<T> values)
+        public void SetValues(string variable, Array values)
         {
             throw new NotImplementedException();
         }
 
-        public int[] GetIntValues1D(string variable)
+        public void SetValues(string variable, int[] start, int[] count, Array values)
         {
-            int rank = 0;
-            lib.get_var_rank(variable, ref rank);
-
-            if (rank > 1)
-            {
-                throw new NotImplementedException("Only variables with rank 1 are supported");
-            }
-
-            var shape = new int[MAXDIMS];
-            lib.get_var_shape(variable, shape);
-
-            if (rank == 1)
-            {
-                var valuesPointer = new IntPtr();
-                lib.get_1d_int(variable, ref valuesPointer);
-                int length = shape[0];
-                var values = new int[length];
-                if (length > 0)
-                {
-                    Marshal.Copy(valuesPointer, values, 0, length);
-                }
-
-                return values;
-            }
-
-            return null;
+            throw new NotImplementedException();
         }
 
-        public int[,] GetIntValues2D(string variable)
+        /// <summary>
+        ///     Run model in one step from start to end.
+        /// </summary>
+        /// <param name="library"></param>
+        /// <param name="configPath"></param>
+        public static void Run(string library, string configPath)
         {
-            int rank = 0;
-            lib.get_var_rank(variable, ref rank);
+            var model = new BasicModelInterfaceLibrary(library);
 
-            if (rank > 2)
+            model.Initialize(configPath);
+
+            int sameTimeCounter = 0;
+
+            DateTime t = model.StartTime;
+            while (t < model.StopTime)
             {
-                throw new NotImplementedException("Only variables with rank 1 are supported");
-            }
-
-            var shape = new int[MAXDIMS];
-            lib.get_var_shape(variable, shape);
-
-            if (rank == 2)
-            {
-                var valuesPointer = new IntPtr();
-                lib.get_2d_int(variable, ref valuesPointer);
-
-                lib.get_var_shape(variable, shape);
-
-                int length = shape[0]*shape[1];
-                var values = new int[length];
-                Marshal.Copy(valuesPointer, values, 0, length);
-
-                // TODO: optimize this, avoid double copy
-                var values2d = new int[shape[0], shape[1]];
-                for (var i = 0; i < shape[0]; i++)
+                // check if model time step increases
+                if (t == model.CurrentTime)
                 {
-                    for (var j = 0; j < shape[1]; j++)
+                    sameTimeCounter++;
+
+                    if (sameTimeCounter == 100)
                     {
-                        values2d[i, j] = values[i * shape[0] + j];
+                        throw new InvalidOperationException("Model current_time did not increase after 100 updates");
                     }
                 }
 
-                return values2d;
-            }
+                t = model.CurrentTime;
+                model.Update(-1.0);
 
-            return new int[,] {};
-        }
-
-        public double[] GetDoubleValues1D(string variable)
-        {
-            int rank = 0;
-            lib.get_var_rank(variable, ref rank);
-
-            if (rank > 1)
-            {
-                throw new NotImplementedException("Only variables with rank 1 are supported");
-            }
-
-            var shape = new int[MAXDIMS];
-            lib.get_var_shape(variable, shape);
-
-            if (rank == 1)
-            {
-                var valuesPointer = new IntPtr();
-                lib.get_1d_double(variable, ref valuesPointer);
-                int length = shape[0];
-                var values = new double[length];
-                if (length > 0)
+                // reset model time step counter
+                if (t != model.CurrentTime)
                 {
-                    Marshal.Copy(valuesPointer, values, 0, length);
+                    sameTimeCounter = 0;
                 }
-
-                return values;
             }
 
-            return null;
-        }
-
-        public void SetDoubleValue1DAtIndex(string variable, int index, double valueDouble)
-        {
-            lib.set_1d_double_at_index(variable, ref index, ref valueDouble);
+            model.Finish();
         }
 
         private void GetVariableNames()
         {
-            var count = 0;
+            int count = 0;
             lib.get_var_count(ref count);
 
             var strings = new string[count];
-            for (var i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)
             {
                 var variableNameBuffer = new StringBuilder(MAXSTRLEN);
-                lib.get_var_name(ref i, variableNameBuffer);
+                lib.get_var_name(i, variableNameBuffer);
                 strings[i] = variableNameBuffer.ToString();
             }
 
             variableNames = strings;
+        }
+
+        private Type ToType(string typeName)
+        {
+            switch (typeName)
+            {
+                case "double":
+                    return typeof (double);
+
+                case "int":
+                    return typeof (int);
+            }
+
+            throw new NotSupportedException("Unsupported type: " + typeName);
+        }
+
+        private Array ToArray1D(IntPtr ptr, string valueType, int totalLength)
+        {
+            if (valueType == "double")
+            {
+                var values = new double[totalLength];
+                Marshal.Copy(ptr, values, 0, totalLength);
+                return values;
+            }
+
+            if (valueType == "int")
+            {
+                var values = new int[totalLength];
+                Marshal.Copy(ptr, values, 0, totalLength);
+                return values;
+            }
+
+            throw new NotSupportedException("Unsupported type: " + valueType);
+        }
+
+        private static int GetTotalLength(int[] shape)
+        {
+            return shape.Aggregate(1, (current, t) => current * t);
         }
     }
 }

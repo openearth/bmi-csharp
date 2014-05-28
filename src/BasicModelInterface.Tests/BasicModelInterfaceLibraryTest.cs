@@ -7,13 +7,19 @@ namespace BasicModelInterface.Tests
     [TestFixture]
     public class BasicModelInterfaceLibraryTest
     {
-        private const string library  = @"..\..\..\SampleNativeLibraries\SampleCppLibrary\bin\Debug\SampleCppLibrary.dll";
+        private const string LibraryC = @"..\..\..\..\bin\Debug\model-c.dll";
+
+        private IBasicModelInterface library;
+
+        [SetUp]
+        public void SetUp()
+        {
+            library = new BasicModelInterfaceLibrary(LibraryC);
+        }
 
         [Test]
         public void InitializeAndFinish()
         {
-            IBasicModelInterface library = new BasicModelInterfaceLibrary(BasicModelInterfaceLibraryTest.library);
-
             const string configFilePath = "empty";
 
             library.Initialize(configFilePath);
@@ -23,8 +29,6 @@ namespace BasicModelInterface.Tests
         [Test]
         public void InitializeTwoTimes()
         {
-            IBasicModelInterface library = new BasicModelInterfaceLibrary(BasicModelInterfaceLibraryTest.library);
-
             const string configFilePath = "empty";
             library.Initialize(configFilePath);
             library.Initialize(configFilePath);
@@ -33,50 +37,44 @@ namespace BasicModelInterface.Tests
         [Test]
         public void GetVariableNames()
         {
-            IBasicModelInterface library = new BasicModelInterfaceLibrary(BasicModelInterfaceLibraryTest.library);
-
-            Assert.AreEqual(1, library.VariableNames.Length);
-            Assert.AreEqual("test", library.VariableNames[0]);
-        }
-
-        [Test]
-        [Ignore("incomplete")]
-        public void SetLogger()
-        {
-            IBasicModelInterface library = new BasicModelInterfaceLibrary(BasicModelInterfaceLibraryTest.library);
-
-            //library.SetLogger();
+            Assert.AreEqual(3, library.VariableNames.Length);
+            Assert.AreEqual("arr1", library.VariableNames[0]);
+            Assert.AreEqual("arr2", library.VariableNames[1]);
+            Assert.AreEqual("arr3", library.VariableNames[2]);
         }
 
         [Test]
         public void Run()
         {
-            BasicModelInterfaceLibrary.Run(library, "test.config");
+            BasicModelInterfaceLibrary.Run(LibraryC, "test.config");
         }
 
         [Test]
-        public void GetValues()
+        public void GetValues_1D_Double()
         {
-            IBasicModelInterface library = new BasicModelInterfaceLibrary(BasicModelInterfaceLibraryTest.library);
+            var values = library.GetValues(library.VariableNames[0]);
 
-            var ptr = IntPtr.Zero;
-            get_var_values2(ref ptr);
+            var valuesExpected = new[] { 3.0, 2.0, 1.0 };
 
-            var v0 = GetArrayValue(ptr, 0);
-            var v1 = GetArrayValue(ptr, 1);
-
-            var values = library.GetValues<double>("v1");
-
-            Console.WriteLine(values[0]);
-            Console.WriteLine(values[1]);
+            Assert.AreEqual(valuesExpected, values);
         }
 
-        private unsafe double GetArrayValue(IntPtr ptr, int index)
+        [Test]
+        public void GetValues_2D_Int()
         {
-            return *((double*) ptr + index);
+            var values = library.GetValues(library.VariableNames[1]);
+
+            var valuesExpected = new[,] { { 3, 2, 1 }, { 6, 4, 2 } };
+
+            Assert.AreEqual(valuesExpected, values);
         }
 
-        [DllImport(library, CallingConvention = CallingConvention.Cdecl)]
-        static extern void get_var_values2(ref IntPtr values);
+        [Test]
+        public void SetLogger()
+        {
+            library.Logger = (level, message) => Console.WriteLine("{0}: {1}", level, message);
+            library.Initialize(string.Empty);
+            library.Finish();
+        }
     }
 }

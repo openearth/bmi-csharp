@@ -26,9 +26,13 @@ namespace BasicModelInterface
         void Finish();
 
         string[] VariableNames { get; }
-        
-        IArray<T> GetValues<T>(string variable);
 
-        void SetValues<T>(string variable, IArray<T> values);
+        Array GetValues(string variable);
+
+        void SetValues(string variable, Array values);
+
+        void SetValues(string variable, int[] start, int[] count, Array values);
+
+        Logger Logger { get; set; }
     }
 }

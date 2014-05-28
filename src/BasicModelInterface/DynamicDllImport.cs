@@ -17,23 +17,20 @@ namespace BasicModelInterface
         public CallingConvention CallingConvention = CallingConvention.Cdecl;
         public CharSet CharSet = CharSet.Auto;
         private AssemblyBuilder assemblyBuilder;
+        private string dllDirectory;
         private string dllFileName;
+        private string assemblyName;
         private int methodIndex;
         private ModuleBuilder moduleBuilder;
-        private string dllDirectory;
-        private Dictionary<string, MethodInfo> methodInfos = new Dictionary<string, MethodInfo>(); 
-
-        public DynamicDllImport(string dllName)
-        {
-            this.dllFileName = dllName;
-        }
+        private Dictionary<string, MethodInfo> methodInfos = new Dictionary<string, MethodInfo>();
 
         public DynamicDllImport(string dllPath, CharSet charSet = CharSet.Auto,
             CallingConvention callingConvention = CallingConvention.Cdecl)
         {
             this.DllPath = dllPath;
             dllDirectory = Path.GetDirectoryName(dllPath);
-            dllFileName = Path.GetFileNameWithoutExtension(dllPath);
+            dllFileName = Path.GetFileName(dllPath);
+            assemblyName = Path.GetFileNameWithoutExtension(dllPath) + "-csharp.dll";
 
             CharSet = charSet;
             CallingConvention = callingConvention;
@@ -50,9 +47,8 @@ namespace BasicModelInterface
         {
             if (assemblyBuilder == null)
             {
-                var assemblyName = dllFileName + "CSharp";
                 assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.RunAndSave, dllDirectory);
-                moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName, assemblyName + ".dll");
+                moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName, assemblyName);
             }
 
             MethodInfo methodInfo = null;
@@ -79,6 +75,8 @@ namespace BasicModelInterface
 
                 methodInfos[methodName] = methodInfo;
             }
+
+            // assemblyBuilder.Save(assemblyName);
 
             return methodInfo;
         }

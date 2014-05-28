@@ -1,0 +1,1 @@
+target\bmi-runner.exe bin\Debug\model-c.dll empty.cfg

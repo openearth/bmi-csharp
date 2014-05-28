@@ -4,8 +4,6 @@ using System.Text;
 
 namespace BasicModelInterface
 {
-    public delegate void Logger(ref int level, StringBuilder message);
-    
     /// <summary>
     /// This interface contains calls to external BMI library. 
     /// 
@@ -19,7 +17,9 @@ namespace BasicModelInterface
 
         int finalize();
 
-        void set_logger(ref Logger logger);
+        // public delegate void Logger(ref int level, StringBuilder message);
+
+        // void set_logger(ref Logger logger);
 
         
         void get_start_time([In, Out] ref double t);

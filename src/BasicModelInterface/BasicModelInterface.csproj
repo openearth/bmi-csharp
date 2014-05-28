@@ -41,12 +41,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicModelInterfaceLibrary.cs" />
-    <Compile Include="IArray.cs" />
-    <Compile Include="NativeArray.cs" />
     <Compile Include="INativeBasicModelInterface.cs" />
     <Compile Include="DynamicDllImport.cs" />
     <Compile Include="DynamicDllImportMetaObject.cs" />
     <Compile Include="IBasicModelInterface.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
