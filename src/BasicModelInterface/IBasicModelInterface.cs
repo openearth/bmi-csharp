@@ -3,7 +3,8 @@
 namespace BasicModelInterface
 {
     /// <summary>
-    ///     C#-friendly version of Basic Model Interface.
+    /// C# version of the Basic Model Interface. API implemented in <see cref="BasicModelInterfaceLibrary"/>.
+    /// For C/C++ version of the API see https://github.com/openearth/bmi/blob/master/models/include/bmi.h
     /// </summary>
     public interface IBasicModelInterface
     {
@@ -15,17 +16,13 @@ namespace BasicModelInterface
 
         TimeSpan TimeStep { get; }
         
-        /// <summary>
-        /// Initializes model engine.
-        /// </summary>
-        /// <param name="path">Configuration file path of the model, connection string, or any other path used to initialize model.</param>
-        void Initialize(string path);
-
-        void Update(double dt);
-
-        void Finish();
-
         string[] VariableNames { get; }
+
+        int Initialize(string path);
+
+        int Update(double dt);
+
+        int Finish();
 
         Array GetValues(string variable);
 

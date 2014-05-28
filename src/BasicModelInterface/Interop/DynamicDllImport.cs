@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 
-namespace BasicModelInterface
+namespace BasicModelInterface.Interop
 {
     /// <summary>
     /// Original source: https://code.google.com/p/dynamicdllimport/
@@ -34,7 +34,11 @@ namespace BasicModelInterface
 
             CharSet = charSet;
             CallingConvention = callingConvention;
+
+            ReturnTypes = new Dictionary<string, Type>();
         }
+
+        public IDictionary<string, Type> ReturnTypes { get; private set; }
 
         public string DllPath { get; private set; }
 

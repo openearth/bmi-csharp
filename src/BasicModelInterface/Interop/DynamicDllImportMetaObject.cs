@@ -4,16 +4,18 @@ using System.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace BasicModelInterface
+namespace BasicModelInterface.Interop
 {
     /// <summary>
     /// Original source: https://code.google.com/p/dynamicdllimport/
     /// </summary>
     internal class DynamicDllImportMetaObject : DynamicMetaObject
     {
-        public DynamicDllImportMetaObject(Expression expression, object value)
-            : base(expression, BindingRestrictions.Empty, value)
+        private DynamicDllImport lib;
+
+        public DynamicDllImportMetaObject(Expression expression, DynamicDllImport lib) : base(expression, BindingRestrictions.Empty, lib)
         {
+            this.lib = lib;
         }
 
         public override DynamicMetaObject BindInvokeMember(InvokeMemberBinder binder, DynamicMetaObject[] args)
@@ -52,12 +54,16 @@ namespace BasicModelInterface
 
         private Type GetMethodReturnType(InvokeMemberBinder binder)
         {
-            IList<Type> types = binder.GetType().GetField("m_typeArguments", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(binder) as IList<Type>;
+            var types = binder.GetType().GetField("m_typeArguments", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(binder) as IList<Type>;
+            
             if ((types != null) && (types.Count > 0))
             {
                 return types[0];
             }
-            return null;
+
+            Type type;
+            lib.ReturnTypes.TryGetValue(binder.Name, out type);
+            return type;
         }
     }
 }

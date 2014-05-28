@@ -41,9 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicModelInterfaceLibrary.cs" />
-    <Compile Include="INativeBasicModelInterface.cs" />
-    <Compile Include="DynamicDllImport.cs" />
-    <Compile Include="DynamicDllImportMetaObject.cs" />
+    <Compile Include="Interop\DynamicDllImport.cs" />
+    <Compile Include="Interop\DynamicDllImportMetaObject.cs" />
     <Compile Include="IBasicModelInterface.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

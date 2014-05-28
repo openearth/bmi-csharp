@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using NUnit.Framework;
 
 namespace BasicModelInterface.Tests
@@ -67,6 +66,42 @@ namespace BasicModelInterface.Tests
             var valuesExpected = new[,] { { 3, 2, 1 }, { 6, 4, 2 } };
 
             Assert.AreEqual(valuesExpected, values);
+        }
+
+        [Test]
+        public void SetValues_1D_Double()
+        {
+            var values = new[] { 1.0, 2.0, 3.0 };
+
+            library.SetValues(library.VariableNames[0], values);
+
+            Assert.AreEqual(values, library.GetValues(library.VariableNames[0]));
+        }
+
+        [Test]
+        public void SetValues_2D_Int()
+        {
+            var values = new[,] { { 1, 2, 3 }, { 4, 5, 6 } };
+
+            library.SetValues(library.VariableNames[1], values);
+
+            Assert.AreEqual(values, library.GetValues(library.VariableNames[1]));
+        }
+
+        [Test]
+        public void SetValues_1D_Double_Slice()
+        {
+            var values = new[,] { { 1, 2, 3 } };
+
+            var start = new[] { 1, 0 };
+            var count = new[] { 1, 3 };
+
+            library.SetValues(library.VariableNames[1], start, count, values);
+
+            var valuesExpected = new[,] { { 3, 2, 1 }, { 1, 2, 3 } };
+
+            var valuesUpdated = library.GetValues(library.VariableNames[1]);
+            Assert.AreEqual(valuesExpected, valuesUpdated);
         }
 
         [Test]

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using BasicModelInterface.Interop;
 
 namespace BasicModelInterface
 {
@@ -26,6 +27,9 @@ namespace BasicModelInterface
         public BasicModelInterfaceLibrary(string libraryPath, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
             lib = new DynamicDllImport(libraryPath, CharSet.Ansi, callingConvention);
+            lib.ReturnTypes["initialize"] = typeof(int);
+            lib.ReturnTypes["update"] = typeof(int);
+            lib.ReturnTypes["finalize"] = typeof(int);
         }
 
         public DateTime StartTime
@@ -74,7 +78,7 @@ namespace BasicModelInterface
             }
         }
 
-        public void Initialize(string path)
+        public int Initialize(string path)
         {
             originalCurrentDirectory = Directory.GetCurrentDirectory();
 
@@ -95,7 +99,7 @@ namespace BasicModelInterface
 
             try
             {
-                lib.initialize(configFile);
+                return lib.initialize(configFile);
             }
             finally
             {
@@ -103,14 +107,14 @@ namespace BasicModelInterface
             }
         }
 
-        public void Update(double timeStep)
+        public int Update(double timeStep)
         {
-            lib.update(timeStep);
+            return lib.update(timeStep);
         }
 
-        public void Finish()
+        public int Finish()
         {
-            lib.finalize();
+            return lib.finalize();
         }
 
         public string[] VariableNames
@@ -149,8 +153,8 @@ namespace BasicModelInterface
             string typeName = typeNameBuilder.ToString();
 
             // copy to 1D array
-            int totalLength = GetTotalLength(shape);
-            Array values1D = ToArray1D(ptr, typeName, totalLength);
+            var totalLength = GetTotalLength(shape);
+            var values1D = ToArray1D(ptr, typeName, totalLength);
 
             if (rank == 1)
             {
@@ -158,17 +162,17 @@ namespace BasicModelInterface
             }
 
             // convert to nD array (unfotrunately can't copy to nD array at once :()
-            Array values = Array.CreateInstance(ToType(typeName), shape);
+            var values = Array.CreateInstance(ToType(typeName), shape);
 
             var index = new int[rank];
-            int dim = rank - 1;
-            bool reset = false;
-            for (int i = 0; i < totalLength; i++)
+            var dim = rank - 1;
+            var reset = false;
+            for (var i = 0; i < totalLength; i++)
             {
                 // increment the lowest dimension
                 while (index[dim] == shape[dim])
                 {
-                    for (int j = dim; j < rank; j++)
+                    for (var j = dim; j < rank; j++)
                     {
                         index[j] = 0;
                     }
@@ -196,12 +200,50 @@ namespace BasicModelInterface
 
         public void SetValues(string variable, Array values)
         {
-            throw new NotImplementedException();
+            var valuesDouble1D = values as double[];
+            if (valuesDouble1D != null)
+            {
+                lib.set_var(variable, valuesDouble1D);
+                return;
+            }
+
+            var valuesDouble2D = values as double[,];
+            if (valuesDouble2D != null)
+            {
+                lib.set_var(variable, valuesDouble2D);
+                return;
+            }
+
+            var valuesInt2D = values as int[,];
+            if (valuesInt2D != null)
+            {
+                lib.set_var(variable, valuesInt2D);
+                return;
+            }
         }
 
         public void SetValues(string variable, int[] start, int[] count, Array values)
         {
-            throw new NotImplementedException();
+            var valuesDouble1D = values as double[];
+            if (valuesDouble1D != null)
+            {
+                lib.set_var_slice(variable, start, count, valuesDouble1D);
+                return;
+            }
+
+            var valuesDouble2D = values as double[,];
+            if (valuesDouble2D != null)
+            {
+                lib.set_var_slice(variable, start, count, valuesDouble2D);
+                return;
+            }
+
+            var valuesInt2D = values as int[,];
+            if (valuesInt2D != null)
+            {
+                lib.set_var_slice(variable, start, count, valuesInt2D);
+                return;
+            }
         }
 
         /// <summary>
