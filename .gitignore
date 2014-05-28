@@ -170,7 +170,6 @@ UpgradeLog*.htm
 *.rdl.data
 *.bim.layout
 *.bim_*.settings
-target/BasicModelInterface.1.0.0.3.nupkg
+target/BasicModelInterface.*
 target/bmi_runner.exe
 src/SampleNativeLibraries/SampleCppLibrary/SampleCppLibrary.vcxproj.filters
-target/bmi-runner.exe

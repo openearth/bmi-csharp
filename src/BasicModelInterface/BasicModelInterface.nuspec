@@ -3,7 +3,7 @@
   <metadata>
     <id>BasicModelInterface</id>
     <title>BMI - Basic Model Interface</title>
-    <version>1.0.0.3</version>
+    <version>0.0.0.0</version>
     <authors>Gennadii Donchyts</authors>
     <copyright>© Deltares 2014</copyright>    
     <description>BMI is a simple API used to run, get/set values from simulation models (frequently coded in C/C++/FORTRAN). Wraps native model libraries which implement BMI interfaces. For more details see http://csdms.colorado.edu/wiki/BMI_Description</description>

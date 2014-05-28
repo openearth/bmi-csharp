@@ -24,6 +24,10 @@ namespace BasicModelInterface
 
         int Finish();
 
+        T GetValue<T>(string variable);
+
+        void SetValue<T>(string variable, T value);
+
         Array GetValues(string variable);
 
         void SetValues(string variable, Array values);

@@ -18,6 +18,7 @@ namespace BasicModelInterface
         private const int MAXSTRLEN = 1024;
 
         private readonly dynamic lib;
+        
         private string originalCurrentDirectory;
 
         private string[] variableNames;
@@ -36,7 +37,7 @@ namespace BasicModelInterface
         {
             get
             {
-                double t = 0.0;
+                var t = 0.0;
                 lib.get_start_time(ref t);
                 return new DateTime().AddSeconds(t);
             }
@@ -46,7 +47,7 @@ namespace BasicModelInterface
         {
             get
             {
-                double t = 0.0;
+                var t = 0.0;
                 lib.get_end_time(ref t);
                 return new DateTime().AddSeconds(t);
             }
@@ -56,13 +57,21 @@ namespace BasicModelInterface
         {
             get
             {
-                double t = 0.0;
+                var t = 0.0;
                 lib.get_current_time(ref t);
                 return new DateTime().AddSeconds(t);
             }
         }
 
-        public TimeSpan TimeStep { get; private set; }
+        public TimeSpan TimeStep
+        {
+            get
+            {
+                var dt = 0.0;
+                lib.get_time_step(ref dt);
+                return new TimeSpan(0, 0, 0, (int)dt, (int)(dt * 0.001));
+            }
+        }
 
         public Logger Logger
         {
@@ -115,6 +124,16 @@ namespace BasicModelInterface
         public int Finish()
         {
             return lib.finalize();
+        }
+
+        public T GetValue<T>(string variable)
+        {
+            throw new NotImplementedException("implement using set_var, array with a single value");
+        }
+
+        public void SetValue<T>(string variable, T value)
+        {
+            throw new NotImplementedException("implement using get_var, array with a single value");
         }
 
         public string[] VariableNames

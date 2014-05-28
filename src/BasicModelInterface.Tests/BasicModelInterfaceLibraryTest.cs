@@ -8,6 +8,8 @@ namespace BasicModelInterface.Tests
     {
         private const string LibraryC = @"..\..\..\..\bin\Debug\model-c.dll";
 
+        const string configFilePath = "empty";
+
         private IBasicModelInterface library;
 
         [SetUp]
@@ -19,16 +21,45 @@ namespace BasicModelInterface.Tests
         [Test]
         public void InitializeAndFinish()
         {
-            const string configFilePath = "empty";
-
             library.Initialize(configFilePath);
             library.Finish();
         }
 
         [Test]
+        public void SingleTimeStep()
+        {
+            library.Initialize(configFilePath);
+            library.Update(-1);
+            library.Finish();
+        }
+
+        [Test]
+        public void StartTime()
+        {
+            Assert.AreEqual(new DateTime(), library.StartTime);
+        }
+
+        [Test]
+        public void StopTime()
+        {
+            Assert.AreEqual(new DateTime().AddSeconds(10), library.StopTime);
+        }
+
+        [Test]
+        public void TimeStep()
+        {
+            Assert.AreEqual(new TimeSpan(0, 0, 0, 1), library.TimeStep);
+        }
+
+        [Test]
+        public void CurrentTime()
+        {
+            Assert.AreEqual(new DateTime(), library.CurrentTime);
+        }
+
+        [Test]
         public void InitializeTwoTimes()
         {
-            const string configFilePath = "empty";
             library.Initialize(configFilePath);
             library.Initialize(configFilePath);
         }
@@ -45,7 +76,7 @@ namespace BasicModelInterface.Tests
         [Test]
         public void Run()
         {
-            BasicModelInterfaceLibrary.Run(LibraryC, "test.config");
+            BasicModelInterfaceLibrary.Run(LibraryC, configFilePath);
         }
 
         [Test]
