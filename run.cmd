@@ -1,1 +1,1 @@
-target\bmi-runner.exe bin\Debug\model-c.dll empty.cfg
+src\BasicModelInterfaceRunner\bin\Debug\bmi-runner.exe bin\Debug\model-c.dll empty.cfg

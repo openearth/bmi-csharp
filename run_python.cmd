@@ -1,2 +1,1 @@
-cd ..\src\SampleNativeLibraries\SampleCppLibrary\bin\Debug\
-C:\Anaconda\Scripts\bmi-runnner.exe SampleCppLibrary empty.cfg --no-logger
+C:\Anaconda\Scripts\bmi-runnner.exe bin\Debug\model-c.dll empty.cfg

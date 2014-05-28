@@ -211,7 +211,10 @@ namespace BasicModelInterface
         /// <param name="configPath"></param>
         public static void Run(string library, string configPath)
         {
-            var model = new BasicModelInterfaceLibrary(library);
+            var model = new BasicModelInterfaceLibrary(library)
+            {
+                Logger = (level, message) => Console.WriteLine("{0}: {1}", level, message)
+            };
 
             model.Initialize(configPath);
 
