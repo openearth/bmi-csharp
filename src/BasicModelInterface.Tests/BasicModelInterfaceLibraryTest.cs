@@ -7,13 +7,14 @@ namespace BasicModelInterface.Tests
     public class BasicModelInterfaceLibraryTest
     {
         private const string LibraryC = @"..\..\..\..\bin\Debug\model-c.dll";
-
+		private const string Engine = @"modelc";
         private IBasicModelInterface library;
 
         [SetUp]
         public void SetUp()
         {
-            library = new BasicModelInterfaceLibrary(LibraryC);
+			string libraryPath = BasicModelInterfaceLibrary.LibraryPath (Engine);
+			library = new BasicModelInterfaceLibrary(libraryPath);
         }
 
         [Test]
