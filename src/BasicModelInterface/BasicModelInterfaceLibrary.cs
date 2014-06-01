@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -31,6 +33,38 @@ namespace BasicModelInterface
             lib.ReturnTypes["update"] = typeof(int);
             lib.ReturnTypes["finalize"] = typeof(int);
         }
+		public static string LibraryName(string engine)
+		{
+			string extension = ".dll";
+			string prefix = "";
+			int p = (int) Environment.OSVersion.Platform;
+			if ((p == 4) || (p == 128)) {
+				prefix = "lib";
+				extension = ".so";
+			} 
+			else if (p == 6)
+			{
+				prefix = "lib";
+				extension = ".dylib";
+			}
+			else {
+				prefix = "";
+				extension = ".dll";
+			};
+			return prefix + engine + extension;
+		}
+		public static string LibraryPath(string engine)
+		{
+			string[] knownPaths = {
+				"~/.local/lib",
+				"/usr/local/lib",
+				"/usr/lib"
+			};
+			// TODO loop over paths to find the library.
+
+			string expandedPath = knownPaths[0].Replace("~", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
+			return Path.GetFullPath(Path.Combine(expandedPath, LibraryName(engine))) ;
+		}
 
         public DateTime StartTime
         {
