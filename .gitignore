@@ -173,3 +173,4 @@ UpgradeLog*.htm
 target/BasicModelInterface.*
 target/bmi_runner.exe
 src/SampleNativeLibraries/SampleCppLibrary/SampleCppLibrary.vcxproj.filters
+target/bmi-runner.exe
