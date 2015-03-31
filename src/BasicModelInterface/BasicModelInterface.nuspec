@@ -11,10 +11,11 @@
     <language>en-US</language>
     <projectUrl>https://github.com/openearth/bmi-csharp</projectUrl>
     <licenseUrl>http://www.gnu.org/licenses/lgpl.html</licenseUrl>
-    <releaseNotes>... a list of changes in this release ...</releaseNotes>
+    <releaseNotes>... list of changes in this release ...</releaseNotes>
   </metadata>
   <files>
-    <file src="bin\Debug\BasicModelInterface.dll " target="lib\net45\BasicModelInterface.dll" />
-    <file src="..\..\target\bmi-runner.exe " target="tools\net45\bmi-runner.exe" />
+    <file src="bin\Debug\BasicModelInterface.dll" target="lib\net40\BasicModelInterface.dll" />
+    <file src="bin\Debug\BasicModelInterface.pdb" target="lib\net40\BasicModelInterface.pdb" />
+    <file src="..\..\target\bmi-runner.exe " target="tools\net40\bmi-runner.exe" />
   </files>
 </package>

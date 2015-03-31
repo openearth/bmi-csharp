@@ -17,7 +17,7 @@ namespace BasicModelInterface
 
         private const int MAXSTRLEN = 1024;
 
-        private readonly dynamic lib;
+        private dynamic lib;
         
         private string originalCurrentDirectory;
 
@@ -126,14 +126,15 @@ namespace BasicModelInterface
             return lib.finalize();
         }
 
-        public T GetValue<T>(string variable)
+        public int[] GetShape(string variable)
         {
-            throw new NotImplementedException("implement using set_var, array with a single value");
-        }
+            var rank = 0;
+            lib.get_var_rank(variable, ref rank);
 
-        public void SetValue<T>(string variable, T value)
-        {
-            throw new NotImplementedException("implement using get_var, array with a single value");
+            var shape = new int[MAXDIMS];
+            lib.get_var_shape(variable, shape);
+
+            return shape.Take(rank).ToArray();
         }
 
         public string[] VariableNames
@@ -154,8 +155,13 @@ namespace BasicModelInterface
             Trace.Assert(!string.IsNullOrEmpty(variable));
 
             // get values (pointer)
-            IntPtr ptr = IntPtr.Zero;
+            var ptr = IntPtr.Zero;
             lib.get_var(variable, ref ptr);
+
+            if (ptr == IntPtr.Zero)
+            {
+                return null;
+            }
 
             // get rank
             int rank = 0;
@@ -169,10 +175,11 @@ namespace BasicModelInterface
             // get value type
             var typeNameBuilder = new StringBuilder(MAXSTRLEN);
             lib.get_var_type(variable, typeNameBuilder);
-            string typeName = typeNameBuilder.ToString();
+            var typeName = typeNameBuilder.ToString();
 
             // copy to 1D array
             var totalLength = GetTotalLength(shape);
+
             var values1D = ToArray1D(ptr, typeName, totalLength);
 
             if (rank == 1)
@@ -180,41 +187,22 @@ namespace BasicModelInterface
                 return values1D;
             }
 
-            // convert to nD array (unfotrunately can't copy to nD array at once :()
-            var values = Array.CreateInstance(ToType(typeName), shape);
-
-            var index = new int[rank];
-            var dim = rank - 1;
-            var reset = false;
-            for (var i = 0; i < totalLength; i++)
-            {
-                // increment the lowest dimension
-                while (index[dim] == shape[dim])
-                {
-                    for (var j = dim; j < rank; j++)
-                    {
-                        index[j] = 0;
-                    }
-
-                    dim--;
-                    index[dim]++;
-                    reset = true;
-                }
-
-
-                // reset to the last dimension
-                if (reset)
-                {
-                    dim = rank - 1;
-                    reset = false;
-                }
-
-                values.SetValue(values1D.GetValue(i), index);
-
-                index[dim]++;
-            }
+            // convert to nD array
+            var valueType = ToType(typeName);
+            var values = Array.CreateInstance(valueType, shape);
+            Buffer.BlockCopy(values1D, 0, values, 0, values1D.Length * Marshal.SizeOf(valueType));
 
             return values;
+        }
+
+        public Array GetValues(string variable, int[] index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Array GetValues(string variable, int[] start, int[] count)
+        {
+            throw new NotImplementedException();
         }
 
         public void SetValues(string variable, Array values)
@@ -265,6 +253,11 @@ namespace BasicModelInterface
             }
         }
 
+        public void SetValues(string variable, int[] index, Array values)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         ///     Run model in one step from start to end.
         /// </summary>
@@ -276,10 +269,9 @@ namespace BasicModelInterface
             {
                 Logger = (level, message) => Console.WriteLine("{0}: {1}", level, message)
             };
-
             model.Initialize(configPath);
 
-            int sameTimeCounter = 0;
+            var sameTimeCounter = 0;
 
             DateTime t = model.StartTime;
             while (t < model.StopTime)
@@ -357,7 +349,7 @@ namespace BasicModelInterface
             throw new NotSupportedException("Unsupported type: " + valueType);
         }
 
-        private static int GetTotalLength(int[] shape)
+        internal static int GetTotalLength(int[] shape)
         {
             return shape.Aggregate(1, (current, t) => current * t);
         }

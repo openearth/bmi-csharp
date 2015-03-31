@@ -96,6 +96,10 @@ namespace BasicModelInterface.Tests
 
             var valuesExpected = new[,] { { 3, 2, 1 }, { 6, 4, 2 } };
 
+
+            var v = 5.0;
+            library.SetValue("a", v);
+
             Assert.AreEqual(valuesExpected, values);
         }
 
@@ -114,6 +118,7 @@ namespace BasicModelInterface.Tests
         {
             var values = new[,] { { 1, 2, 3 }, { 4, 5, 6 } };
 
+            library.SetValues(library.VariableNames[1], values);
             library.SetValues(library.VariableNames[1], values);
 
             Assert.AreEqual(values, library.GetValues(library.VariableNames[1]));

@@ -5,7 +5,7 @@
     <SolutionDir>$(MSBuildProjectDirectory)</SolutionDir> 
     <ProjectsToBuild>src\BasicModelInterface\BasicModelInterface.csproj;src\BasicModelInterfaceRunner\BasicModelInterfaceRunner.csproj</ProjectsToBuild>
     <NuGetCmd>$(BuildPath)\tools\NuGet</NuGetCmd>
-    <ProgramVersion>1.0.0.5</ProgramVersion>
+    <ProgramVersion>1.0.0.10</ProgramVersion>
   </PropertyGroup>
 
   <Target Name="Clean">
