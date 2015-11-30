@@ -33,27 +33,54 @@ namespace BasicModelInterface
             lib.ReturnTypes["update"] = typeof(int);
             lib.ReturnTypes["finalize"] = typeof(int);
         }
+
 		public static string LibraryName(string engine)
 		{
 			string extension = ".dll";
 			string prefix = "";
-			int p = (int) Environment.OSVersion.Platform;
-			if ((p == 4) || (p == 128)) {
-				prefix = "lib";
-				extension = ".so";
-			} 
-			else if (p == 6)
+			var p = Environment.OSVersion.Platform;
+			if (p == PlatformID.Unix || p == PlatformID.MacOSX) 
 			{
 				prefix = "lib";
-				extension = ".dylib";
-			}
+				extension = ".so";
+
+				// HACK: Mono implements Platform incorrectly
+				if (IsRunningOnMac ()) {
+					extension = ".dylib";
+					extension = "";
+				}
+			} 
 			else {
 				prefix = "";
 				extension = ".dll";
 			};
 			return prefix + engine + extension;
 		}
-		public static string LibraryPath(string engine)
+
+		//From Managed.Windows.Forms/XplatUI
+		[DllImport ("libc")]
+		static extern int uname (IntPtr buf);
+
+		static bool IsRunningOnMac ()
+		{
+			IntPtr buf = IntPtr.Zero;
+			try {
+				buf = Marshal.AllocHGlobal (8192);
+				// This is a hacktastic way of getting sysname from uname ()
+				if (uname (buf) == 0) {
+					string os = Marshal.PtrToStringAnsi (buf);
+					if (os == "Darwin")
+						return true;
+				}
+			} catch {
+			} finally {
+				if (buf != IntPtr.Zero)
+					Marshal.FreeHGlobal (buf);
+			}
+			return false;
+		}
+	
+		public static string GetLibraryPath(string engine)
 		{
 			string[] knownPaths = {
 				"~/.local/lib",
@@ -63,7 +90,9 @@ namespace BasicModelInterface
 			// TODO loop over paths to find the library.
 
 			string expandedPath = knownPaths[0].Replace("~", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
-			return Path.GetFullPath(Path.Combine(expandedPath, LibraryName(engine))) ;
+			var fullPath = Path.GetFullPath (Path.Combine (expandedPath, LibraryName (engine)));
+			Debug.Assert (new FileInfo (fullPath).Exists);
+			return fullPath;
 		}
 
         public DateTime StartTime

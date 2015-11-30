@@ -54,12 +54,14 @@ namespace BasicModelInterface.Interop
 
         private Type GetMethodReturnType(InvokeMemberBinder binder)
         {
+			/*
             var types = binder.GetType().GetField("m_typeArguments", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(binder) as IList<Type>;
             
             if ((types != null) && (types.Count > 0))
             {
                 return types[0];
             }
+            */
 
             Type type;
             lib.ReturnTypes.TryGetValue(binder.Name, out type);

@@ -1,19 +1,21 @@
 ﻿using System;
 using NUnit.Framework;
+using System.Runtime.InteropServices;
 
 namespace BasicModelInterface.Tests
 {
     [TestFixture]
     public class BasicModelInterfaceLibraryTest
     {
-        private const string LibraryC = @"..\..\..\..\bin\Debug\model-c.dll";
-		private const string Engine = @"modelc";
+		private const string EngineName = @"modelc";
+		private string libraryPath;
+		private const string LibraryC = @"..\..\..\..\bin\Debug\model-c.dll";
         private IBasicModelInterface library;
 
         [SetUp]
         public void SetUp()
         {
-			string libraryPath = BasicModelInterfaceLibrary.LibraryPath (Engine);
+			libraryPath = BasicModelInterfaceLibrary.GetLibraryPath(EngineName);
 			library = new BasicModelInterfaceLibrary(libraryPath);
         }
 
@@ -21,7 +23,6 @@ namespace BasicModelInterface.Tests
         public void InitializeAndFinish()
         {
             const string configFilePath = "empty";
-
             library.Initialize(configFilePath);
             library.Finish();
         }
@@ -46,7 +47,7 @@ namespace BasicModelInterface.Tests
         [Test]
         public void Run()
         {
-            BasicModelInterfaceLibrary.Run(LibraryC, "test.config");
+			BasicModelInterfaceLibrary.Run(libraryPath, "test.config");
         }
 
         [Test]
@@ -112,5 +113,16 @@ namespace BasicModelInterface.Tests
             library.Initialize(string.Empty);
             library.Finish();
         }
+
+		[Test]
+		public void InitializeDirect()
+		{
+			initialize ("");
+		}
+
+		[DllImport ("modelc", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+		public static extern int initialize (string configPath);
+
+
     }
 }
