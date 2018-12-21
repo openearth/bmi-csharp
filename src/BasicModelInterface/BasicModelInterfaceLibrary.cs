@@ -69,7 +69,7 @@ namespace BasicModelInterface
             {
                 var dt = 0.0;
                 lib.get_time_step(ref dt);
-                return new TimeSpan(0, 0, 0, (int)dt, (int)(dt * 0.001));
+                return new TimeSpan(0, 0, 0, 0, (int)(dt * 1000));
             }
         }
 
